@@ -1,0 +1,1 @@
+名字由来：Internationalizatioin Script Tool
