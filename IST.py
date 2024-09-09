@@ -15,6 +15,31 @@ from page.page5 import Page5
 
 from img.rabbit import imgBase64
 
+'''
+标准控件
+0 cbt CheckButton
+1 btn Button
+2 chk CheckBox
+3 ckl CheckedListBox
+4 cmb ComboBox
+5 dtp DateTimePicker
+6 lbl Label
+7 llb LinkLabel
+8 lst ListBox
+9 lvw ListView
+10 mtx MaskedTextBox
+11 cdr MonthCalendar
+12 icn NotifyIcon
+13 nud NumeircUpDown
+14 pic PictureBox
+15 prg ProgressBar
+
+函数开头用__xx__
+变量开头用a_b_c  小写开头
+
+表头要和文件名称 有直接对应关系
+'''
+
 
 class App:
     def __init__(self,master):
