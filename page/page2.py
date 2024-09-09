@@ -91,30 +91,42 @@ class Page2:
         self.modify_labelframe = ttk.Labelframe(self.monty, text='  修改JS文件操作  ')
         self.modify_labelframe.grid(column=4,row = self.row_index + 2, sticky='W', columnspan= '30')
 
+        self.modify_label_js = tk.Label(self.modify_labelframe, text='js 文件')
+        self.modify_label_js.grid(column = 1,row= 3,  sticky='E')
+        self.modify_entry_js = tk.Entry(self.modify_labelframe, width= 40)
+        self.modify_entry_js.grid(column = 3,row= 3)
+        self.modify_select_js = ttk.Button(self.modify_labelframe, text='选择文件',width=10,command=self.__get_js_file_path__)
+        self.modify_select_js.grid(column = 5,row= 3)
+
+
         self.modify_label_excel = tk.Label(self.modify_labelframe, text='excel 文件')
-        self.modify_label_excel.grid(column = 3,row= 4, sticky='E')
+        self.modify_label_excel.grid(column = 1,row= 4, sticky='E')
         self.modify_entry_excel = tk.Entry(self.modify_labelframe, width= 40)
-        self.modify_entry_excel.grid(column = 4,row= 4)
+        self.modify_entry_excel.grid(column = 3,row= 4)
         self.modify_select_excel = ttk.Button(self.modify_labelframe, text='选择文件',width=10,command=self.__modify_get_excel_path__)
         self.modify_select_excel.grid(column = 5,row= 4)
 
         self.modify_label_folder = tk.Label(self.modify_labelframe, text='JS文件夹路径')
-        self.modify_label_folder.grid(column = 3,row= 5, sticky='E')
+        self.modify_label_folder.grid(column = 1,row= 5, sticky='E')
         self.modify_entry_folder = tk.Entry(self.modify_labelframe, width= 40)
-        self.modify_entry_folder.grid(column = 4,row= 5)
+        self.modify_entry_folder.grid(column = 3,row= 5)
         self.modify_select_folder = ttk.Button(self.modify_labelframe, text='选择文件夹',width=10,command=self.__modify_get_folder_path__)
         self.modify_select_folder.grid(column = 5,row= 5)
 
-        self.action = ttk.Button(self.modify_labelframe,text='修改 JS',width=10,command = self.__modify_js_file__)
-        self.action.grid(column=3, row= 8,rowspan=2,ipady=7)
+        self.modify_action = ttk.Button(self.modify_labelframe,text='修改 JS',width=10,command = self.__modify_js_file__)
+        self.modify_action.grid(column=2, row= 8, sticky= 'W', columnspan= '2', ipady='7')
 
-        self.action = ttk.Button(self.modify_labelframe,text='检查 JS',width=10,command = self.__check_js_file__)
-        self.action.grid(column=5, row= 8,rowspan=2,ipady=7)
+        self.check_action = ttk.Button(self.modify_labelframe,text='检查 JS',width=10,command = self.__check_js_file__)
+        self.check_action.grid(column=2, row= 8, sticky='E', columnspan= '2', ipady='7')
 
     def get_file_path(self):
         self.js_file_path = filedialog.askopenfilename()
-        self.entry.delete(0,tk.END) # 删除从开始到结束的文本
+        self.entry.delete(0,tk.END) # 删除从开始到结束的文本S
         self.entry.insert(0, self.js_file_path)
+
+    def __get_js_file_path__(self):
+        self.modify_js_file_path = filedialog.askopenfilename()
+        
 
     def get_excel_path(self):
         self.excel_file_path = filedialog.askopenfilename()
