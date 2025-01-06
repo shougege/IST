@@ -12,7 +12,7 @@ from page.page2 import Page2
 from page.page3 import Page3
 from page.page4 import Page4
 from page.page5 import Page5
-
+from page.page6 import Page6
 from img.rabbit import imgBase64
 
 '''
@@ -37,7 +37,7 @@ from img.rabbit import imgBase64
 函数开头用__xx__
 变量开头用a_b_c  小写开头
 
-表头要和文件名称 有直接对应关系
+表头要和文件名称 有直接对应关系, 非映射关系
 '''
 
 
@@ -61,6 +61,9 @@ class App:
         tab5 = ttk.Frame(tabControl)            # Add a fiveth tab
         tabControl.add(tab5,text="mutil dat to excel")
 
+        tab6 = ttk.Frame(tabControl)            # Add a six tab
+        tabControl.add(tab6, text="search chinese strings")
+
         tabControl.pack(expand=1, fill="both")  # Pack to make tab visible
         # ~ Tab Control introduced here ----------------------------------
 
@@ -69,6 +72,7 @@ class App:
         Page3(tab3)
         Page4(tab4)
         Page5(tab5)
+        Page6(tab6)
 
 # 创建临时logo
 def createTempLogo():  #处理图片
