@@ -17,7 +17,7 @@ def contains_chinese(text):
     return bool(CHINESE_REGEX.search(text))
 
 
-class Page6:
+class SearchChinese:
 
     def __init__(self, master) -> None:
         self.monty = ttk.LabelFrame(master, text="寻找文件中的中文字符串")
@@ -42,9 +42,12 @@ class Page6:
 
 
     def check_files_for_chinese(self):
+
+        # Disable the button and change its appearance to gray
+        self.action.config(state='disabled')
         """遍历目录，检查文件中是否包含中文字符"""
         for dirpath, dirnames, filenames in os.walk(self.root_dir):
-                   # 排除 .git 目录
+            # 排除 .git 目录
             if '.git' in dirpath:
                 continue
 
@@ -53,17 +56,28 @@ class Page6:
             if 'node_modules' in dirpath:
                 continue
 
+            if 'images' in dirpath:
+                continue
+
             for filename in filenames:
                 file_path = os.path.join(dirpath, filename)
                 # 跳过一些常见的文件（如临时文件，缓存文件等）
                 if filename.endswith('.pyc') or filename.endswith('.log'):
                     continue
-                
+
                 try:
+                    line_number = 0
                     with open(file_path, 'r', encoding='utf-8') as file:
-                        content = file.read()
-                        if contains_chinese(content):
-                            logging.info(f'文件 "{file_path}" 包含中文字符')
+                        for line in file:
+                            if(contains_chinese(line)):
+                                logging.info(f'文件 "{file_path} L:{line_number}" 包含中文字符: ' + line)
+
+                        # content = file.read()
+                        # if contains_chinese(content):
+                        #     logging.info(f'文件 "{file_path}" 包含中文字符')
                 except (UnicodeDecodeError, IOError) as e:
                     # 如果读取文件出错，跳过该文件
                     logging.info(f'无法读取文件 "{file_path}": {e}')
+
+        # Re-enable the button after the function completes
+        self.action.config(state='normal')

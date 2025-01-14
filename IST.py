@@ -12,7 +12,7 @@ from page.page2 import Page2
 from page.page3 import Page3
 from page.page4 import Page4
 from page.page5 import Page5
-from page.page6 import Page6
+from page.search_chinese import SearchChinese
 from img.rabbit import imgBase64
 
 '''
@@ -61,8 +61,8 @@ class App:
         tab5 = ttk.Frame(tabControl)            # Add a fiveth tab
         tabControl.add(tab5,text="mutil dat to excel")
 
-        tab6 = ttk.Frame(tabControl)            # Add a six tab
-        tabControl.add(tab6, text="search chinese strings")
+        tab6 = ttk.Frame(tabControl)            # Add a six tab; Search for Chinese terms for project
+        tabControl.add(tab6, text="搜索项目中文词条")
 
         tabControl.pack(expand=1, fill="both")  # Pack to make tab visible
         # ~ Tab Control introduced here ----------------------------------
@@ -72,7 +72,7 @@ class App:
         Page3(tab3)
         Page4(tab4)
         Page5(tab5)
-        Page6(tab6)
+        SearchChinese(tab6)
 
 # 创建临时logo
 def createTempLogo():  #处理图片
