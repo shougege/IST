@@ -8,6 +8,7 @@ import re
 import csv
 import os, shutil
 import logging
+import time
 
 #正则表达式，匹配中文字符
 CHINESE_REGEX = re.compile(r'[\u4e00-\u9fa5]')
@@ -45,6 +46,7 @@ class SearchChinese:
 
         # Disable the button and change its appearance to gray
         self.action.config(state='disabled')
+        start = time.process_time()
         """遍历目录，检查文件中是否包含中文字符"""
         for dirpath, dirnames, filenames in os.walk(self.root_dir):
             # 排除 .git 目录
@@ -81,3 +83,5 @@ class SearchChinese:
 
         # Re-enable the button after the function completes
         self.action.config(state='normal')
+        end = time.process_time()
+        mBox.showinfo('搜索项目中文词条','耗时' + str(end-start) + 's')
