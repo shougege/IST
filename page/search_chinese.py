@@ -70,10 +70,9 @@ class SearchChinese:
                 try:
                     line_number = 0
                     with open(file_path, 'r', encoding='utf-8') as file:
-                        for line in file:
+                        for line_number, line in enumerate(file):
                             if(contains_chinese(line)):
-                                logging.info(f'文件 "{file_path} L:{line_number}" 包含中文字符: ' + line)
-
+                                logging.info(f'文件 "{file_path} Line:{line_number + 1}" 包含中文字符: {line.strip()}')
                         # content = file.read()
                         # if contains_chinese(content):
                         #     logging.info(f'文件 "{file_path}" 包含中文字符')
