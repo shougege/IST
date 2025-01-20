@@ -11,27 +11,27 @@ import logging
 import time
 
 
-class Page4:
+class KeywordExtraction:
     #------------------------------Tab4控件介绍-------------------------#
     # We are creating a container tab4 to hold all other widgets
     def __init__(self, master) -> None:
         self.monty = ttk.LabelFrame(master,text='提取中文关键字')
         self.monty.grid(column=0,row=0,padx=60,pady=20) 
 
-        self.label_dat = tk.Label(self.monty, text='dat file path')
+        self.label_dat = tk.Label(self.monty, text='dat文件路径')
         self.label_dat.grid(column=3, row=5, ipadx=8,ipady= 6)
         self.entry_dat = tk.Entry(self.monty,width=40)
         self.entry_dat.grid(column=5,row=5)
         self.select_dat = ttk.Button(self.monty,text='选择文件',width=10,command=self.get_dat_file_path)
         self.select_dat.grid(column=7,row=5)
 
-        self.label_excel = tk.Label(self.monty, text='生成*.xlsx文文件名')
+        self.label_excel = tk.Label(self.monty, text='输入**.xlsx文件名')
         self.label_excel.grid(column=3,row=6, ipadx=8, ipady=6)
         self.entry_excel_filename = tk.Entry(self.monty,width=40)
         self.entry_excel_filename.grid(column=5,row=6)
 
-        action_csv = ttk.Button(self.monty,text='Extraction',width = 10,command = self.generate_excel_file)
-        action_csv.grid(column=5,row=7,rowspan=2,ipady=7)
+        self.action_extraction = ttk.Button(self.monty,text='提取',width = 10,command = self.generate_excel_file)
+        self.action_extraction.grid(column=5,row=7,rowspan=2,ipady=7)
 
         # 去除已经翻译字段
         self.monty1 = ttk.LabelFrame(master, text='去除已经翻译字段')
@@ -44,12 +44,12 @@ class Page4:
         self.select_remove_excel = ttk.Button(self.monty1,text='选择文件',width=10,command=self.get_remove_excel_file_path)
         self.select_remove_excel.grid(column=7,row=5)
 
-        self.label_after_removal_excel = tk.Label(self.monty1, text='生成*.xlsx文文件名')
+        self.label_after_removal_excel = tk.Label(self.monty1, text='生成*.xlsx文件名')
         self.label_after_removal_excel.grid(column=3,row=6, ipadx=8, ipady=6)
         self.entry_after_excel_filename = tk.Entry(self.monty1,width=40)
         self.entry_after_excel_filename.grid(column=5,row=6)
 
-        action_remove_excel = ttk.Button(self.monty1,text="ReMove",width=10,command= self.generate_remove_file)
+        action_remove_excel = ttk.Button(self.monty1,text="去除",width=10,command= self.generate_remove_file)
         action_remove_excel.grid(column=5,row=7,rowspan=2,ipady=7)
 
     def get_dat_file_path(self):
@@ -60,32 +60,36 @@ class Page4:
     # Modified Button Click Function
     def generate_excel_file(self):
 
-        logging.info("generate_excel_file start")
-        logging.info(self.entry_excel_filename.get())
+        logging.info("generate_excel_file start" + self.entry_excel_filename.get())
 
         # pattern = re.compile(r"'((?:[^'\\]|\\.|\\\\)*)'")
         save_data = {}
         str_array = []
+        self.action_extraction.config(state='disabled')
         start = time.process_time()
         with open(self.dat_file_path,'r', encoding="utf-8") as file:
-            for line in file:
+            for line_number, line in enumerate(file):
                 if "'" in line:
                     splitValue = line.split("'")
                     if len(splitValue) == 3:
                         str_array.append(splitValue[1])
                     elif len(splitValue) > 3:
-                        logging.info('分割之后字符串数量大于3: ' + line)
+                        logging.info(f'文件 "{self.dat_file_path} Line:{line_number + 1}" 分割后字符串数量大于3 原字符串:  {line.strip()}')
                         result = re.search(r'\'(.*)\'',line)
                         result_str = result.group(1) if result else ""
-                        logging.info('分割之后字符串数量大于3 原字符串: ' + line)
                         logging.info('分割之后字符串数量大于3 替换字符串: ' + result_str)
                         str_array.append(result_str)
                     else:
-                        logging.error("提取的错误字符串: " + line)
+                        logging.error(f'文件 "{self.dat_file_path} Line:{line_number + 1} " 提取的错误字符串:{line.strip()}')
     
         # 使用set进行去重
         logging.info("提取词条个数: " + str(len(str_array)))
-        unique_str_array = list(set(str_array))
+        #unique_str_array = list(set(str_array))
+        #logging.info("提取词条去重后个数: " + str( len(unique_str_array) ))
+        #save_data["词条（简体中文或者英文）"] = unique_str_array
+        #save_data["限制长度（字符）"] = ''
+
+        unique_str_array = self.remove_duplicates(str_array)
         logging.info("提取词条去重后个数: " + str( len(unique_str_array) ))
         save_data["词条（简体中文或者英文）"] = unique_str_array
         save_data["限制长度（字符）"] = ''
@@ -102,7 +106,19 @@ class Page4:
         df.to_excel(new_filename,index=False)
 
         end = time.process_time()
+        self.action_extraction.config(state='normal')
         mBox.showinfo('提取词条完成','耗时' + str(end-start) + 's')
+
+
+    def remove_duplicates(self,lst):
+        # 采用集合进行过滤，若元素不在集合中，则result列表add,若元素在集合中则pass
+        seen = set()  # 用于跟踪已出现的元素
+        result = []
+        for item in lst:
+            if item not in seen:
+                result.append(item)
+                seen.add(item)
+        return result
 
 
     def get_remove_excel_file_path(self):
@@ -115,9 +131,15 @@ class Page4:
         return all(pd.notna(row) & (row.astype(str).str.strip()==''))
 
     def generate_remove_file(self):
+        # 功能说明: 对所选的的感兴趣的列进行判定，如果已经翻译则筛出，仅仅保存未翻译的词条
+
+        # 1. 读取 Excel 文件，并将其加载到一个DataFrame 中
         df = pd.read_excel(self.remove_excel_file_path)
 
+        # 2. 选择 DataFrame 中感兴趣的列
         cols_of_interest = ['en_US','es_ES']
+        # 3. 筛选出包含特定数据的行
         rows_to_delete = df[df[cols_of_interest].apply(self.has_data_or_empty,axis=1)]
 
+        # 4. 将筛选后的 DataFrame 导出到新的Excel文件中
         rows_to_delete.to_excel(self.entry_after_excel_filename.get(),index=False)

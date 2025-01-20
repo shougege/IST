@@ -7,11 +7,11 @@ import logging
 import base64
 import os
 
-from page.page1 import Page1
+from page.fileFormat_convert import fileFormatConvert
 from page.page2 import Page2
 from page.page3 import Page3
-from page.page4 import Page4
-from page.page5 import Page5
+from page.keyword_extraction import KeywordExtraction
+from page.mutilFile_convertExcel import mutilFileConvertExcel
 from page.search_chinese import SearchChinese
 from img.rabbit import imgBase64
 
@@ -47,7 +47,7 @@ class App:
         tabControl = ttk.Notebook(master)          # Create Tab Control
 
         tab1 = ttk.Frame(tabControl)            # Create a tab
-        tabControl.add(tab1, text='File format conversion') # Add the tab
+        tabControl.add(tab1, text='文件格式转换') # Add the tab
 
         tab2 = ttk.Frame(tabControl)            # Add a second tab
         tabControl.add(tab2,text='Web2.0 generate JS file') 
@@ -56,10 +56,10 @@ class App:
         tabControl.add(tab3,text='Web2.0 generate DAT file')  
 
         tab4 = ttk.Frame(tabControl)            # Add a fifth tab
-        tabControl.add(tab4,text='Keyword Extraction')  # 
+        tabControl.add(tab4,text='关键词提取')  # 
 
         tab5 = ttk.Frame(tabControl)            # Add a fiveth tab
-        tabControl.add(tab5,text="mutil dat to excel")
+        tabControl.add(tab5,text="多翻译文件转excel")
 
         tab6 = ttk.Frame(tabControl)            # Add a six tab; Search for Chinese terms for project
         tabControl.add(tab6, text="搜索项目中文词条")
@@ -67,11 +67,11 @@ class App:
         tabControl.pack(expand=1, fill="both")  # Pack to make tab visible
         # ~ Tab Control introduced here ----------------------------------
 
-        Page1(tab1)
+        fileFormatConvert(tab1)
         Page2(tab2)
         Page3(tab3)
-        Page4(tab4)
-        Page5(tab5)
+        KeywordExtraction(tab4)
+        mutilFileConvertExcel(tab5)
         SearchChinese(tab6)
 
 # 创建临时logo
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     #Configure logging parameters
     logging.basicConfig(level=logging.DEBUG,
-                        format='%(asctime)s - %(filename)s -Line: %(lineno)d - %(levelname)s -  %(message)s',
+                        format='%(asctime)s - %(filename)s -Line: %(lineno)d - %(levelname)s --  %(message)s',
                         datefmt='%Y-%M-%d %H:%M:%S',
                         filename='IST_APP.log',
                         filemode='w')

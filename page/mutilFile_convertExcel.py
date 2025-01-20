@@ -7,8 +7,18 @@ import pandas as pd
 import re
 import csv
 import os, shutil
+import re
+import logging
+import time
 
-class Page5:
+"""
+多个dat/js 文件转换成excel 文件。
+功能： 
+    1. 分散的翻译文件转换成 excel
+    2. 排查每个翻译文件是否翻译完全和准确
+"""
+
+class mutilFileConvertExcel:
     #------------------------------Tab5控件介绍-------------------------#
     # We are creating a container tab4 to hold all other widgets
     def __init__(self, master) -> None:
@@ -68,11 +78,11 @@ class Page5:
                 else:
                     #print("************",line)
                     pass
-        print('index: ', index, 'sum: ', sum, "len: ", len(new_data))
+        logging.info('index: ', index, 'sum: ', sum, "len: ", len(new_data))
         return new_data
 
     def multiDat_to_excel(self):
-        print("dat 文件夹: ", self.dat_folder_path)
+        logging.info("dat 文件夹: ", self.dat_folder_path)
         # first 读取zh-CN_lang.dat
 
         # 遍历其他文件
@@ -84,12 +94,12 @@ class Page5:
         for parent, dirnames, filenames in os.walk(self.dat_folder_path, followlinks=True):
             for filename in filenames:
                 file_path = os.path.join(parent,filename)
-                print('文件名称: %s' % filename)
-                print('文件完整路径: %s\n' % file_path)
+                logging.info('文件名称: %s' % filename)
+                logging.info('文件完整路径: %s\n' % file_path)
                 header_name = filename.split("_")
-                print('表头: %s\n' % header_name[0])
+                logging.info('表头: %s\n' % header_name[0])
                 col_list = self.write_to_excel(file_path)
-                print('data length: ', len(col_list))
+                logging.info('data length: ', len(col_list))
                 #df[header_name[0]] = data
                 data[header_name[0]] = col_list 
 
@@ -99,4 +109,4 @@ class Page5:
         # 这样做可以避免 1. 数据过长问题 2. 数据每列长度不同问题
         df = pd.DataFrame(pd.DataFrame.from_dict(data,orient='index').values.T,columns=list(data.keys()))
         df.to_excel('output.xlsx',index=False)
-        print("数据已成功写入指定列,并保存为新的Excel文件。")
+        logging.info("数据已成功写入指定列,并保存为新的Excel文件。")

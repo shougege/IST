@@ -22,7 +22,7 @@ def modify_csv_column_width(input_file,output_file,column_index,width):
                 write.writerow(rows[i])
                 #break
 
-class Page1:
+class fileFormatConvert:
     #---------------------------Tab1控件介绍-------------------#
     # We are creating a container tab3 to hold all other widgets
     def __init__(self, master) -> None:
