@@ -16,7 +16,7 @@ import logging
 #              Czech捷克语 Ukrainian乌克兰语 Polish波兰语 Kazakh哈塞克语  Danish丹麦语 Norwegian挪威语
 #              Swedish 瑞典语 Azerbaijani阿塞拜疆语 Hungarian匈牙利语 Vietnamese越南语 Bulgarian保加利亚语
 
-class Page2:
+class generateJsFile:
     # ---------------Tab2 控件介绍 ------------------~#
     # We are creating a container tab3 to hold all other widgets
     def __init__(self, master) -> None:
@@ -121,12 +121,13 @@ class Page2:
 
     def get_file_path(self):
         self.js_file_path = filedialog.askopenfilename()
-        self.entry.delete(0,tk.END) # 删除从开始到结束的文本S
+        self.entry.delete(0,tk.END) # 删除从开始到结束的文本
         self.entry.insert(0, self.js_file_path)
 
     def __get_js_file_path__(self):
         self.modify_js_file_path = filedialog.askopenfilename()
-        
+        self.modify_entry_js.delete(0, tk.END) # 删除从开始到结束的文本
+        self.modify_entry_js.insert(0, self.modify_js_file_path)
 
     def get_excel_path(self):
         self.excel_file_path = filedialog.askopenfilename()
@@ -136,7 +137,7 @@ class Page2:
     def __modify_get_excel_path__(self):
         self.modify_excel_file_path = filedialog.askopenfilename()
         self.modify_entry_excel.delete(0,tk.END) # 删除从开始到结束的文本
-        self.modify_entry_excel.insert(0, self.modify_entry_excel)
+        self.modify_entry_excel.insert(0, self.modify_excel_file_path)
 
     def get_folder_path(self):
         self.js_folder_path = filedialog.askdirectory()
@@ -166,6 +167,7 @@ class Page2:
         start = time.process_time()
         for index,var in enumerate(self.cbt_vars):
             if var.get() == 1:
+                # 遍历选择的按钮
                 self.__modify_fields__(index)
 
         end = time.process_time()
@@ -222,27 +224,47 @@ class Page2:
 
         # 用来寻找表头
         #直接遍历文件夹下每一个JS文件
+        flag = False
         for parent, dirnames, filenames in os.walk(self.modify_js_folder_path, followlinks=True):
             for filename in filenames:
-                # logging.info('文件名称: ' + filename)
                 file_path = os.path.join(parent, filename)
-                # logging.info("文件完整路径: " + file_path)
                 # prefixName = filename.split(".")
+                flag = False
                 if self.prefix_name[index] in filename:
+                    flag = True
                     logging.info("找到对应文件" + file_path)
                     self.__replace_fields__(file_path, index)
-                else:
-                    logging.info("未找到对应js 文件与列表相对应" + filename)
-
+                    break
+            if False == flag:
+                logging.info("未找到对应js 文件与列表相对应" + self.prefix_name[index])
         logging.info("end modify_fields")      
 
     # 检查翻译是否正确
-    def __replace_fields__(self):
-        # 读取excel 遍历每个Sheet 找到
-        # 如果'' 有值就遍历下一个，为空 就从zh_cn找到 key进行每个excel文件，每个sheet遍历查找
+    def __replace_fields__(self,modify_file_path, index):
         pass
+		# index 寻找到表头
+		# 读取excel 遍历每个Sheet 找到
+		# 如果'' 有值就遍历下一个，为空 就从zh_cn找到 key进行每个excel文件，每个sheet遍历查找
+		# 打开modify_file_path文件不使用w和w+ 而是使用r+
+	    #with open(modify_file_path,'r+',encoding='utf-8') as mfile:
+		    #for line in mfile:
+			    #if "'" in line:
+                # pass
+        		    #spliteValue = line.split("'")
+                     #if len(spliteValue) == 3:
+							#and '' == spliteValue[1]:
+						#pass
+					#if 3 == len(spliteValue) and '' == spliteValue[1]:
+					#self.__repStr__(spliteValue[1],index)
+					#logging.info('需要翻译词条' + line) 
 
-
-    #
+		
+    # def __modify_field__(self, index):
+    #     pass
+    		#       self.Sheet_header[index]
+				#with open(self.modify_js_file_path,'r',encoding='utf-8') as file:                 
+    
     def __check_js_file__(self):
         pass
+    
+   

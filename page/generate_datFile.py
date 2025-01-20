@@ -10,7 +10,7 @@ import csv
 import os
 import logging
 
-class Page3:
+class generateDatFile:
     #------------------------------Tab3控件介绍-------------------------#
     # We are creating a container tab3 to hold all other widgets
     def __init__(self,master) -> None:

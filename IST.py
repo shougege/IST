@@ -8,8 +8,8 @@ import base64
 import os
 
 from page.fileFormat_convert import fileFormatConvert
-from page.page2 import Page2
-from page.page3 import Page3
+from page.generate_jsFile import generateJsFile
+from page.generate_datFile import generateDatFile
 from page.keyword_extraction import KeywordExtraction
 from page.mutilFile_convertExcel import mutilFileConvertExcel
 from page.search_chinese import SearchChinese
@@ -50,10 +50,10 @@ class App:
         tabControl.add(tab1, text='文件格式转换') # Add the tab
 
         tab2 = ttk.Frame(tabControl)            # Add a second tab
-        tabControl.add(tab2,text='Web2.0 generate JS file') 
+        tabControl.add(tab2,text='web2.0生成js文件')
 
         tab3 = ttk.Frame(tabControl)            # Add a third tab
-        tabControl.add(tab3,text='Web2.0 generate DAT file')  
+        tabControl.add(tab3,text='web2.0生成dat文件')  
 
         tab4 = ttk.Frame(tabControl)            # Add a fifth tab
         tabControl.add(tab4,text='关键词提取')  # 
@@ -68,8 +68,8 @@ class App:
         # ~ Tab Control introduced here ----------------------------------
 
         fileFormatConvert(tab1)
-        Page2(tab2)
-        Page3(tab3)
+        generateJsFile(tab2)
+        generateDatFile(tab3)
         KeywordExtraction(tab4)
         mutilFileConvertExcel(tab5)
         SearchChinese(tab6)
