@@ -10,6 +10,22 @@ import os, shutil
 import logging
 import time
 
+#正则表达式，匹配非注释部分的正则表达式（排除以 // 开头的注释）
+CODE_REGEX = re.compile(r'^(?!\s*//).*')
+# ^(?!\s*//).*: 它表示匹配那些没有以 // （可选空格后）开头的行。该正则表达式是一个负向前瞻，意味着这一行不应该以注释开始。
+"""
+def contains_chinese(text):
+    # 检查文本是否包含中文字符（排除 // 注释行
+    # 去除 // 开头的注释行
+    non_comment_lines = [line for line in text.splitlines() if CODE_REGEX.match(line)]
+    
+    # 检查非注释行是否包含中文字符
+    for line in non_comment_lines:
+        if CHINESE_REGEX.search(line):
+            return True
+    return False
+"""
+
 #正则表达式，匹配中文字符
 CHINESE_REGEX = re.compile(r'[\u4e00-\u9fa5]')
 
@@ -81,6 +97,6 @@ class SearchChinese:
                     logging.info(f'无法读取文件 "{file_path}": {e}')
 
         # Re-enable the button after the function completes
-        self.action.config(state='normal')
         end = time.process_time()
+        self.action.config(state='normal')
         mBox.showinfo('搜索项目中文词条','耗时' + str(end-start) + 's')
