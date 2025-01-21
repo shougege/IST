@@ -10,6 +10,21 @@ import csv
 import os
 import logging
 
+class DataFrameSingleton:
+    _instance = None
+    df = None
+
+    def __new__(cls, excel_file_path=None):
+        if cls._instance is None:
+            cls._instance = super(DataFrameSingleton, cls).__new__(cls)
+            if excel_file_path:
+                cls.df = pd.DataFrame(pd.read_excel(excel_file_path))
+        return cls._instance
+
+    def get_df(self):
+        return self.df
+
+
 class generateDatFile:
     #------------------------------Tab3控件介绍-------------------------#
     # We are creating a container tab3 to hold all other widgets
@@ -22,9 +37,10 @@ class generateDatFile:
                 "de-DE","he-IL","tr-TR","it-IT","ro-RO","th-TH","el-GR","pl-PL"]
         # zh-TW中国台湾 ru-RU俄语 fr-FR法语 es-ES西班牙语 pt-PT葡萄牙语 ar-AE阿拉伯语 ko-KR韩语
         # de-DE德语 he-IL希伯来语 tr-TR土耳其语 it-IT意大利语 ro-RO罗马尼亚语 th-TH泰语 el-GR希腊语 pl-PL波兰语 
-        self.file_header = ["en_US","zh_TW","ru_RU","fr_FR","es_ES","pt_PT","ar_AE","ko_KR",
-                "de_DE","he_IL","tr_TR","it_IT","ro_RO","th_TH","el_GR","pl_PL"]
-
+        # self.file_header = ["en_US","zh_TW","ru_RU","fr_FR","es_ES","pt_PT","ar_AE","ko_KR",
+        #         "de_DE","he_IL","tr_TR","it_IT","ro_RO","th_TH","el_GR","pl_PL"]
+        self.file_header = ["英语（en）","繁体中文（zh_TW）","俄语（ru）","法语（fr）","西班牙语（es）","葡萄牙语（pt）","阿拉伯语（ar）","韩语（ko）",
+                 "德语（de）","希伯来语（he）","土耳其语（tr）","意大利语（it）","罗马尼亚语（ro）","泰语（th）","希腊语（el）","波兰语（pl）"]
         
         self.vars = []
         self.icol = 1
@@ -86,8 +102,10 @@ class generateDatFile:
 
     # Modified Button Click Function
     def generate_dat_file(self):
+        # 启动df的单例模式
+        self.dataframe_instance = DataFrameSingleton(self.excel_file_path)
         # 用UTF-8 打开文件
-        logging.info("start generate_dat_file")
+        logging.info("开始生成dat文件")
         start = time.process_time()
 
         for index,var in enumerate(self.vars):
@@ -95,8 +113,8 @@ class generateDatFile:
                 self.datfieldProcess(index)
         
         end = time.process_time()
-        mBox.showinfo('generate DAT file', '耗时' + str(end-start) +'s')
-        logging.info("end generate_dat_file")
+        mBox.showinfo('生成dat文件', '耗时' + str(end-start) +'s')
+        logging.info("结束生成dat文件")
 
     def datfieldProcess(self,index):
         #folder_name = os.path.basename(self.dat_folder_path)
@@ -118,8 +136,6 @@ class generateDatFile:
                             result_str = result.group(1) if result else ""
                             val =  self.repStr(result_str, self.file_header[index])
                             fileW.write(line.replace(result_str,val))
-                            logging.info('分割之后字符串数量大于3 原字符串: ' + line)
-                            logging.info('分割之后字符串数量大于3 替换字符串: ' + result_str)
                         else:
                             # 这里需要补充 有'' 内容的逻辑
                             fileW.write(line)
@@ -127,13 +143,13 @@ class generateDatFile:
                             fileW.write(line)                
     
     def repStr(self,keyWord,tab_header):
-
-        df = pd.DataFrame(pd.read_excel(self.excel_file_path))
+        # 使用单例模式，频繁多文件进行io操作消耗资源
+        df = self.dataframe_instance.get_df()
         
         #search_result =  df[df['词条中文'] ==  keyWord]  # df.loc[df['A'].str.contains("颁发者",na=False)]
         # keyWord 关键字的行
         try:
-            filtered_rows =  df[df['zh_CN'] ==  keyWord]
+            filtered_rows =  df[df['词条中文'] ==  keyWord]
             if filtered_rows.empty:
                 logging.info('未找到词条: ' + keyWord + ' 所在的行')
                 return ''

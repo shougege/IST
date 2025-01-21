@@ -9,6 +9,22 @@ import re
 import csv
 import os
 import logging
+
+class DataFrameSingleton:
+    _instance = None
+    df = None
+
+    def __new__(cls, excel_file_path=None):
+        if cls._instance is None:
+            cls._instance = super(DataFrameSingleton, cls).__new__(cls)
+            if excel_file_path:
+                cls.df = pd.DataFrame(pd.read_excel(excel_file_path))
+        return cls._instance
+
+    def get_df(self):
+        return self.df
+
+
 # zh-TW中国台湾 ru-RU俄语 fr-FR法语 es-ES西班牙语 pt-PT葡萄牙语 ar-AE阿拉伯语 ko-KR韩语
 # de-DE德语 he-IL希伯来语 tr-TR土耳其语 it-IT意大利语 ro-RO罗马尼亚语 th-TH泰语 el-GR希腊语 pl-PL波兰语 
 
@@ -152,6 +168,7 @@ class generateJsFile:
     # Modified Button Click Function
     def generate_js_file(self):   
         # 用UTF-8 打开文件
+        self.dataframe_instance = DataFrameSingleton(self.excel_file_path)
         logging.info("start generate_js_file")
         start = time.process_time()
         for index,var in enumerate(self.cbt_vars):
@@ -196,13 +213,13 @@ class generateJsFile:
                         logging.info('file write 错误!')
     
     def repStr(self,keyWord, tab_header):
-        
-        df = pd.DataFrame(pd.read_excel(self.excel_file_path))
+        # 使用单例模式，频繁多文件进行io操作消耗资源
+        df = self.dataframe_instance.get_df()
         
         #search_result =  df[df['词条中文'] ==  keyWord]  # df.loc[df['A'].str.contains("颁发者",na=False)]
         # 找到keyWord 关键字的行
         try:
-            filtered_rows =  df[df['zh_CN'] ==  keyWord]
+            filtered_rows =  df[df['词条中文'] ==  keyWord]
             if filtered_rows.empty:
                 logging.info('未找到词条所在的行' + keyWord)
                 return ''
