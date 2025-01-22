@@ -17,7 +17,6 @@ def modify_csv_column_width(input_file,output_file,column_index,width):
             for i in range(len(rows)):
                 rows[i][column_index] = rows[i][column_index].ljust(width)
                 write = csv.writer(output)
-                print("rows: " , rows[i])
                 logging.info("rows: ", rows[i])
                 write.writerow(rows[i])
                 #break
@@ -43,7 +42,7 @@ class fileFormatConvert:
         self.generate_csv_filename = tk.Entry(self.monty,width=40)
         self.generate_csv_filename.grid(column=1,row=10,pady=10)
 
-        self.action_csv = ttk.Button(self.monty,text='to CSV',width=10,command=self.excel_to_csv)
+        self.action_csv = ttk.Button(self.monty,text='转CSV',width=10,command=self.excel_to_csv)
         self.action_csv.grid(column=1, row=12, ipady= 5, pady=10)
 
        # CSV to Excel
@@ -62,7 +61,7 @@ class fileFormatConvert:
         self.entry_excel_filename = tk.Entry(self.monty1,width=40)
         self.entry_excel_filename.grid(column=1,row=10,pady=10)
 
-        self.action_excel = ttk.Button(self.monty1,text='to Excel',width=10,command=self.csv_to_excel)
+        self.action_excel = ttk.Button(self.monty1,text='转Excel',width=10,command=self.csv_to_excel)
         self.action_excel.grid(column=1, row=12, ipady= 5, pady=10)
 
     def get_excel_file_path(self):

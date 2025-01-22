@@ -14,11 +14,15 @@ class DataFrameSingleton:
     _instance = None
     df = None
 
-    def __new__(cls, excel_file_path=None):
+    def __new__(cls, excel_file_path=None, excel_sheet_name=None):
         if cls._instance is None:
             cls._instance = super(DataFrameSingleton, cls).__new__(cls)
             if excel_file_path:
-                cls.df = pd.DataFrame(pd.read_excel(excel_file_path))
+                # 如果 excel_sheet_name 为None或空字符串，则读取默认的sheet(第一个sheet)
+                if not excel_sheet_name:
+                    cls.df = pd.read_excel(excel_file_path)
+                else:
+                    cls.df = pd.DataFrame(pd.read_excel(excel_file_path, sheet_name=excel_sheet_name))
         return cls._instance
 
     def get_df(self):
@@ -75,12 +79,19 @@ class generateDatFile:
         self.select_excel = ttk.Button(self.labelsFrame, text='选择文件',width=8,command= self.get_excel_path)
         self.select_excel.grid(column = 5,row= 4)
 
+        self.label_excel_sheet = tk.Label(self.labelsFrame,text='sheet 名')
+        self.label_excel_sheet.grid(column=3,row=5)
+        self.entry_excel_sheet = tk.Entry(self.labelsFrame,width=40)
+        self.entry_excel_sheet.grid(column=4,row=5)
+        self.tipsLabel = tk.Label(self.labelsFrame, text='默认为第一个sheet')
+        self.tipsLabel.grid(column=5,row=5)
+
         self.label_folder = tk.Label(self.labelsFrame, text='生成文件夹路径')
-        self.label_folder.grid(column = 3,row= 5)
+        self.label_folder.grid(column = 3,row= 6)
         self.entry_folder = tk.Entry(self.labelsFrame, width= 40)
-        self.entry_folder.grid(column = 4,row= 5)
+        self.entry_folder.grid(column = 4,row= 6)
         self.select_folder = ttk.Button(self.labelsFrame, text='选择文件夹',width=10,command=self.get_folder_path)
-        self.select_folder.grid(column = 5,row= 5)
+        self.select_folder.grid(column = 5,row= 6)
 
         self.action = ttk.Button(self.labelsFrame,text='生成 DAT',width=10,command = self.generate_dat_file)
         self.action.grid(column=4, row= 8,rowspan=2,ipady=7)
@@ -103,15 +114,29 @@ class generateDatFile:
     # Modified Button Click Function
     def generate_dat_file(self):
         # 启动df的单例模式
-        self.dataframe_instance = DataFrameSingleton(self.excel_file_path)
+        self.dataframe_instance = DataFrameSingleton(self.excel_file_path, self.entry_excel_sheet.get())
+        # 未翻译词条汇总在excel表格中
+        try:
+            directory, filename = os.path.split(self.excel_file_path)
+        except:
+            logging.error(f"os.path.split {self.excel_file_path}")
+        new_fileName = os.path.join(directory, "untranslatedEntries.xlsx")
         # 用UTF-8 打开文件
         logging.info("开始生成dat文件")
         start = time.process_time()
 
+        self.save_data = {}
         for index,var in enumerate(self.vars):
             if var.get() == 1:
                 self.datfieldProcess(index)
         
+        # 将数据保存到 DataFrame
+        #df = pd.DataFrame(self.save_data)
+        # 不同列数据 保存
+        df = pd.DataFrame({key: pd.Series(value) for key, value in self.save_data.items()})
+        # 保存 DataFrame 到Excel 文件
+        df.to_excel(new_fileName,index=False) # 不保存行索引
+
         end = time.process_time()
         mBox.showinfo('生成dat文件', '耗时' + str(end-start) +'s')
         logging.info("结束生成dat文件")
@@ -122,6 +147,7 @@ class generateDatFile:
         combined_name = os.path.join(folder_name, self.options[index] + '_lang.dat')
         logging.info("生成dat 文件名 " + combined_name)
 
+        str_array = []
         with open(self.dat_file_path, 'r', encoding='utf-8' ) as file:
             with open(combined_name,'w+',encoding='utf-8') as fileW:
                 for line in file:
@@ -129,19 +155,27 @@ class generateDatFile:
                         splitValue = line.split("'")
                         if len(splitValue) == 3:
                             val =  self.repStr(splitValue[1], self.file_header[index])
+                            if(val == '') :
+                                logging.info(f'未找到词条{splitValue[1]}: ' + ' 对应的翻译')
+                                str_array.append({splitValue[1]})
                             fileW.write(line.replace(splitValue[1],val))
                         elif len(splitValue) > 3:
                             logging.info('分割之后字符串数量大于3: ' + line)
                             result = re.search(r'\'(.*)\'',line)
                             result_str = result.group(1) if result else ""
                             val =  self.repStr(result_str, self.file_header[index])
+                            if(val == '') :
+                                logging.info(f'未找到词条{result_str}: ' + ' 对应的翻译')
+                                str_array.append(result_str)
                             fileW.write(line.replace(result_str,val))
                         else:
                             # 这里需要补充 有'' 内容的逻辑
                             fileW.write(line)
                     else:
                             fileW.write(line)                
-    
+
+        self.save_data[self.file_header[index]] = str_array
+
     def repStr(self,keyWord,tab_header):
         # 使用单例模式，频繁多文件进行io操作消耗资源
         df = self.dataframe_instance.get_df()
@@ -151,19 +185,23 @@ class generateDatFile:
         try:
             filtered_rows =  df[df['词条中文'] ==  keyWord]
             if filtered_rows.empty:
-                logging.info('未找到词条: ' + keyWord + ' 所在的行')
+                #logging.info('未找到词条: ' + keyWord + ' 所在的行')
                 return ''
             
             row_number = filtered_rows.index[0]
             value = df.iloc[row_number][tab_header]
             if value is np.nan:
-                logging.info('未找到替换的关键字')
+                #logging.info('未找到替换的关键字')
                 value = ''
-        except:
+        except KeyError as e:
+            logging.info(f"列名错误: {e}")
+            value = ''
+        except Exception as e:
+            logging.info(f"发生错误：{e}")
             logging.info("表头: " + tab_header +  "  Key word: " +  keyWord)
             value = ''
-
-        return value
+        # lstrip() 方法去除字符串开头空白字符（包括空格、制表符等）
+        return value.lstrip()
 
 
 
